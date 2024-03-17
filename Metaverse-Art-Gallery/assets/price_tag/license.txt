@@ -1,0 +1,11 @@
+Model Information:
+* title:	Price tag
+* source:	https://sketchfab.com/3d-models/price-tag-a9b946b98fdc40179d01359a404aff01
+* author:	Rimot (https://sketchfab.com/amir.ildarov)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Price tag" (https://sketchfab.com/3d-models/price-tag-a9b946b98fdc40179d01359a404aff01) by Rimot (https://sketchfab.com/amir.ildarov) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

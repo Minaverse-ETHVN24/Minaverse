@@ -1,0 +1,1284 @@
+<html>
+  <head>
+    <!--
+  <script>
+    // WebXR requires https: to work so ensure redirected if needed.
+    if (location.hostname !== '192.168.51.1' && window.location.protocol === 'http:') window.location.protocol = 'https:';
+  </script>-->
+
+    <!-- the AFrame library and 3rd party components -->
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@0d23f9b/dist/aframe-master.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
+    <script>
+      window.module = { exports: {} };
+    </script>
+    <!-- Dirty hack to get the sphere collider loading :-( -->
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-extras@master/src/misc/sphere-collider.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/gh/Hypnos-phi/aframe-extras@d08cf88/dist/aframe-extras.controls.min.js"></script> DOESN'T LET ANIMATIONS PLAY -->
+    <script src="https://cdn.jsdelivr.net/gh/diarmidmackenzie/christmas-scene@4a6a774/lib/physx.release.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/diarmidmackenzie/christmas-scene@4a6a774/lib/physics.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AdaRoseCannon/aframe-blink-controls@573383a/dist/aframe-blink-controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.9/build/handy-controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.9/build/magnet-helpers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-htmlmesh@1.0.1/build/aframe-html.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <!-- <script src="js/aframe-animation-timeline-component.min.js"></script> -->
+    <script src="https://unpkg.com/aframe-text-geometry-component@0.5.1/dist/aframe-text-geometry-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-template-component@3.x.x/dist/aframe-template-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-layout-component@4.x.x/dist/aframe-layout-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.x.x/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-proxy-event-component/dist/aframe-proxy-event-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-debug-cursor-component/dist/aframe-debug-cursor-component.min.js"></script>
+    <script src="//cdn.rawgit.com/donmccurdy/aframe-physics-system/v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <!-- geomtery merger -->
+    <script src="https://unpkg.com/aframe-geometry-merger-component/dist/aframe-geometry-merger-component.min.js"></script>
+    <!-- metamask -->
+    <script src="https://cdn.jsdelivr.net/npm/@metamask/detect-provider"></script>
+
+    <script src="ar-shadow-helper.js"></script>
+    <script src="ar-cursor.js"></script>
+    <script src="simple-navmesh-constraint.js"></script>
+    <script src="model-utils.js"></script>
+
+    <!-- Our custom behaviour -->
+    <script src="main.js"></script>
+    <script src="link-controls.js"></script>
+
+    <title>AFrame Handy Demo</title>
+    <meta property="og:title" content="AFrame Handy Work Demo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@AdaRoseCannon" />
+    <meta name="twitter:creator" content="@AdaRoseCannon" />
+    <meta property="og:url" content="https://aframe-xr-starterkit.glitch.me/" />
+    <meta
+      name="description"
+      content="A sample scene for working with WebXR Hand Tracking"
+    />
+    <meta
+      property="og:description"
+      content="A sample scene for working with WebXR Hand Tracking"
+    />
+    <meta
+      property="og:image"
+      content="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/snapshot.png?v=1645201177438"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <a-scene
+      stats
+      physx="autoLoad: true; delay: 1000; wasmUrl: https://stemkoski.github.io/A-Frame-Examples/js/physx.release.wasm; useDefaultScene: false;"
+      webxr="overlayElement:#dom-overlay;"
+      background="color:skyblue;"
+      reflection="directionalLight:#dirlight;"
+      renderer="alpha:true;physicallyCorrectLights:true;colorManagement:true;exposure:2;toneMapping:ACESFilmic;"
+      ar-hit-test="target:#my-ar-objects;type:footprint;footprintDepth:0.2;"
+      shadow="type: pcfsoft"
+      gltf-model="dracoDecoderPath: https://cdn.jsdelivr.net/npm/three@0.129.0/examples/js/libs/draco/gltf/;"
+      raycaster="objects: #my-ar-objects a-sphere [link]"
+      ar-cursor
+    >
+      <a-assets>
+        <a-asset-item
+          id="building-glb"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/venue.glb?v=1644331843500"
+        ></a-asset-item>
+        <a-asset-item
+          id="navmesh-glb"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/navmesh.glb?v=1644329586500"
+        ></a-asset-item>
+        <a-asset-item
+          id="right-gltf"
+          src="https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/skeleton-right-hand-webxr/model.gltf"
+        ></a-asset-item>
+        <a-asset-item
+          id="left-gltf"
+          src="https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/skeleton-left-hand-webxr/model.gltf"
+        ></a-asset-item>
+        <a-asset-item
+          id="watch-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/watch.glb?v=1645016979219"
+        ></a-asset-item>
+        <a-asset-item
+          id="sword-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/katana.glb?v=1648465043810"
+        ></a-asset-item>
+        <a-asset-item
+          id="watergun-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/watergun.glb?v=1646916260646"
+        ></a-asset-item>
+        <a-asset-item
+          id="table-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/small_wooden_table_01_1k-v1.glb?v=1647263187998"
+        ></a-asset-item>
+        <a-asset-item
+          id="clock-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/vintage_grandfather_clock_01_1k-v2.glb?v=1647265174189"
+        ></a-asset-item>
+        <a-asset-item
+          id="ladder-gltf"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/ladder.glb?v=1648465045608"
+        ></a-asset-item>
+
+        <a-asset-item id="spiral-glb" src="assets/apartment.glb"></a-asset-item>
+
+        <img
+          id="bake"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/Bake(3).webp?v=1644331344700"
+          crossorigin="anonymous"
+        />
+        <a-mixin
+          id="animations"
+          animation__click="property: components.material.material.color; type: color; to: blue; startEvents: click; dur: 500;"
+        ></a-mixin>
+        <a-mixin
+          id="blink"
+          blink-controls="rotateOnTeleport:false;cameraRig: #cameraRig; teleportOrigin: #head; collisionEntities:.navmesh;"
+        ></a-mixin>
+        <a-mixin
+          id="handle-visual"
+          geometry="width:0.05;height:0.05;depth:0.2"
+        ></a-mixin>
+      </a-assets>
+
+      <a-entity
+        id="cameraRig"
+        simple-navmesh-constraint="navmesh:.navmesh;fall:0.5;height:0;exclude:.navmesh-hole;"
+        movement-controls="speed:0.15;camera:#head;"
+        position="-1 0 1"
+        rotation="0 45 0"
+        origin-on-ar-start
+      >
+        <!-- camera -->
+        <a-entity
+          id="head"
+          camera="near:0.01;"
+          look-controls="pointerLockEnabled: false"
+          position="0 1.65 0"
+        ></a-entity>
+
+        <a-camera>
+          <a-cursor intersection-spawn="event: click; mixin: voxel"></a-cursor>
+        </a-camera>
+
+        <a-entity xr-follow>
+          <a-gltf-model
+            id="sword"
+            src="#sword-gltf"
+            shadow="receive:false;"
+            data-pick-up
+            class="magnet-left magnet-right"
+            position="-0.2 -0.4 0"
+            rotation="-30 180 0"
+            scale="0.6,0.6,1"
+            animation__restore_position="startEvents:putdown;pauseEvents:pickup;property:position;to:-0.2 -0.4 0;easing:easeOutBack;"
+            animation__restore_rotation="startEvents:putdown;pauseEvents:pickup;property:rotation;to:-30 180 0;easing:easeOutBack;"
+          >
+            <a-box
+              physx-body="type: kinematic;"
+              width="0.03"
+              height="0.03"
+              depth="0.790"
+              rotation="-16 0 0"
+              position="0 -0.062 -0.331"
+              visible="false"
+            ></a-box>
+          </a-gltf-model>
+          <a-gltf-model
+            shadow="receive:false;"
+            id="watergun"
+            src="#watergun-gltf"
+            physx-body-from-model="type: kinematic;"
+            class="magnet-left magnet-right"
+            data-pick-up
+            position="0.2 -0.4 0"
+            rotation="30 180 0"
+            linear-constraint="axis:0 1 0;min:-0.15;max:0;part:Slider;"
+            animation__restore_position="startEvents:putdown;pauseEvents:pickup;property:position;to:0.2 -0.4 0;easing:easeOutBack;"
+            animation__restore_rotation="startEvents:putdown;pauseEvents:pickup;property:rotation;to:30 180 0;easing:easeOutBack;"
+          >
+            <a-entity
+              id="watergun-slider-magnet"
+              rotation="-74 0 0"
+              attach-to-model="Slider"
+            ></a-entity>
+          </a-gltf-model>
+        </a-entity>
+
+        <!-- Hand tracking -->
+        <a-entity
+          handy-controls="right:#right-gltf;materialOverride:right;"
+          material="color:gold;metalness:1;roughness:0;"
+        >
+          <!-- For screen space inputs like mobile AR -->
+          <a-torus
+            radius="0.008"
+            radius-tubular="0.001"
+            material="shader:flat;color:blue"
+            data-none="screen-0"
+          ></a-torus>
+          <a-torus
+            radius="0.008"
+            radius-tubular="0.001"
+            material="shader:flat;color:green"
+            data-none="screen-1"
+          ></a-torus>
+          <a-torus
+            radius="0.008"
+            radius-tubular="0.001"
+            material="shader:flat;color:red"
+            data-none="screen-2"
+          ></a-torus>
+
+          <!-- Put an exit button on the wrist for handtracking -->
+          <a-gltf-model
+            src="#watch-gltf"
+            data-left="wrist"
+            position="-1000 0 0"
+          >
+            <a-sphere
+              radius="0.02"
+              position="0 0.02 0"
+              sphere-collider="radius:0.02;objects:[data-right$=-tip];"
+              exit-on="hitend"
+              visible="false"
+            ></a-sphere>
+          </a-gltf-model>
+
+          <!-- Add a golden ring on the finger -->
+          <a-entity data-left="ring-finger-phalanx-proximal">
+            <a-torus
+              position="0 0 -0.03"
+              radius="0.008"
+              radius-tubular="0.001"
+              scale="1 1 1.5"
+              material="color:gold;metalness:1;roughness:0;"
+            ></a-torus>
+          </a-entity>
+
+          <!-- Use the finger tips for teleporting when the user points -->
+          <a-entity
+            data-right="index-finger-tip"
+            mixin="blink"
+            blink-controls="snapTurn:false;startEvents:pose_point_fuseShort;endEvents:pose_point_fuseLong;cancelEvents:pose_cancel_point;"
+          ></a-entity>
+          <a-entity
+            data-left="index-finger-tip"
+            mixin="blink"
+            blink-controls="snapTurn:false;startEvents:pose_point_fuseShort;endEvents:pose_point_fuseLong;cancelEvents:pose_cancel_point;"
+          ></a-entity>
+
+          <!-- The direction hands are facing, we will also attach labels to show the currently detected pose or controller button -->
+          <!-- These also do teleportaion for Blink controls in VR -->
+          <a-entity position="0 0 0">
+            <a-entity camera position="0 1.5 1" look-controls></a-entity>
+            <a-entity
+              id="leftHand"
+              laser-controls="hand: left"
+              raycaster="objects: .collidable; far: 5;"
+              line="color: #CCCCCC"
+              pointer
+            ></a-entity>
+            <a-entity
+              id="rightHand"
+              laser-controls="hand: right"
+              raycaster="objects: .clickable; far: 5;"
+              line="color: #CCCCCC"
+              pointer
+            ></a-entity>
+          </a-entity>
+          <a-entity
+            data-right="ray"
+            mixin="blink"
+            html-pointer=""
+            raycaster="objects:[html];far:0.3;showLine:false;lineColor:black;"
+          >
+            <a-entity
+              position="0 0 -0.22"
+              visible="false"
+              class="pose-label"
+              text="value: Hello World; align: center;"
+            ></a-entity>
+          </a-entity>
+          <a-entity
+            data-left="ray"
+            mixin="blink"
+            html-pointer=""
+            raycaster="objects:[html];far:0.3;showLine:false;lineColor:black;"
+          >
+            <a-entity
+              position="0 0 -0.22"
+              visible="false"
+              class="pose-label"
+              text="value: Hello World; align: center;"
+            ></a-entity>
+          </a-entity>
+
+          <!-- These get drawn towards grabable objects, moving the whole hand and the attached elements-->
+          <a-entity
+            id="left-magnet"
+            data-left="grip"
+            data-magnet="magnet-left"
+            grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;"
+          ></a-entity>
+          <a-entity
+            id="right-magnet"
+            data-right="grip"
+            data-magnet="magnet-right"
+            grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;"
+          ></a-entity>
+
+          <!-- markers to let us know the real location of the hands, you probably want to make them visible="false" or just make them empty <a-entities> -->
+          <a-entity id="left-no-magnet" data-left="grip" data-no-magnet>
+            <a-entity
+              html="#my-interface"
+              position="-0.142 -0.0166 -0.02928"
+              rotation="-80 90 0"
+              scale="0.7 0.7 0.7"
+            ></a-entity>
+          </a-entity>
+
+          <a-entity id="right-no-magnet" data-right="grip" data-no-magnet
+            ><a-entity
+              html="#my-transaction"
+              position="-0.142 -0.0166 -0.02928"
+              rotation="-80 90 0"
+              scale="0.7 0.7 0.7"
+            ></a-entity>
+          </a-entity>
+
+          <!-- Invisible objects at the tips of each finger for physics or intersections -->
+          <a-sphere
+            data-right="index-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-right="middle-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-right="ring-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-right="pinky-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-right="thumb-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-left="index-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-left="middle-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-left="ring-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-left="pinky-finger-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+          <a-sphere
+            data-left="thumb-tip"
+            radius="0.004"
+            visible="false"
+            physx-body="type: kinematic;"
+          ></a-sphere>
+        </a-entity>
+      </a-entity>
+
+      <a-entity id="my-ar-objects" position="-6 0 1">
+        <!-- "Dusty Piano" (https://skfb.ly/66EPx) by Vincent074 is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). -->
+        <a-gltf-model
+          id="piano"
+          rotation="0 100 0"
+          shadow="receive:false;cast:true;"
+          src="https://cdn.glitch.global/d29f98b4-ddd1-4589-8b66-e2446690e697/piano.glb?v=1644414775118"
+        >
+          <a-plane
+            rotation="-90 0 0"
+            width="1.5"
+            height="0.6"
+            class="navmesh-hole"
+            visible="false"
+          ></a-plane>
+        </a-gltf-model>
+      </a-entity>
+
+      <!-- This plane is only visible in AR and follows the given target to provide it with shadows.-->
+      <a-light
+        id="dirlight"
+        shadow-camera-automatic="[ar-shadow-helper],#table,#ladder"
+        intensity="0.8"
+        light="castShadow:true;type:directional"
+        position="0 3 -6"
+      ></a-light>
+      <a-entity
+        ar-shadow-helper="target:#my-ar-objects;light:#dirlight;"
+        visible="false"
+      >
+        <a-plane
+          rotation="-90 0 0"
+          shadow="cast:false;receive:true;"
+          position="0 0.01 0"
+          material="shader:shadow; depthWrite:false; opacity:0.9;"
+        ></a-plane>
+      </a-entity>
+
+      <a-entity
+        hide-on-enter-ar
+        position="0 -0.2 0"
+        environment="lighting:none;shadow:true;preset: osiris;"
+      ></a-entity>
+      <a-entity rotation="0 -50 0" position="0 0 0" hide-on-enter-ar>
+        <a-box
+          position="-5.148 -0.1 -0.355"
+          visible="false"
+          geometry="width:33.67;height:0.2;depth:19.06"
+          physx-body="type: static;"
+          physx-restitution="1.5"
+        >
+        </a-box>
+        <a-gltf-model
+          id="pot"
+          toggle-physics
+          shadow="receive:false;"
+          src="#stew-gltf"
+          position="-2 1.2 0.8"
+          physx-body-from-model="type:dynamic;mass:2;"
+        >
+          <a-entity
+            id="stew-handle-1"
+            data-magnet-range="0.2,0.1,360,180"
+            data-pick-up="parent"
+            class="magnet-left magnet-right"
+            position="0 0.35 -0.35"
+            rotation="0 90 0"
+          ></a-entity>
+          <a-entity
+            id="stew-handle-2"
+            data-magnet-range="0.2,0.1,360,180"
+            data-pick-up="parent"
+            class="magnet-left magnet-right"
+            position="0 0.35 0.35"
+            rotation="0 90 0"
+          ></a-entity>
+        </a-gltf-model>
+
+        <!-- Button test -->
+        <a-box
+          position="-1.657 0.893 0.421"
+          width="0.2"
+          height="0.2"
+          depth="0.2"
+          color="grey"
+          animation__press="startEvents:press;property:components.material.material.color;type:color;to:green;dur:100;"
+          animation__release="startEvents:release;property:components.material.material.color;type:color;to:grey;dur:100;"
+        >
+        </a-box>
+
+        <a-gltf-model
+          class="navmesh"
+          src="#navmesh-glb"
+          visible="false"
+        ></a-gltf-model>
+
+        <a-gltf-model
+          class="navmesh"
+          rotation="180 0 180"
+          position="1.5 2.5 -11.6"
+          src="assets/apartment_patched.glb"
+          visible="false"
+        ></a-gltf-model>
+
+        <a-gltf-model
+          class="navmesh"
+          rotation="0 90 0"
+          position="-16 7.7 -10"
+          scale="0.5 0.5 0.5"
+          src="assets/scifi_maincontrols_mesh.glb"
+          visible="false"
+        ></a-gltf-model>
+
+        <a-gltf-model
+          src="assets/vr_gallery/scene.gltf"
+          id="main-exhibition-room"
+          position="0 3.2 0"
+          scale="1 1 1"
+          lightmap="src:#bake;intensity: 1.5; filter:Window,Ceiling,floor;"
+          no-tonemapping="Light"
+          shadow="cast:false;receive:true;"
+        ></a-gltf-model>
+
+        <a-gltf-model
+          src="./assets/colorful_frog__free/scene.gltf"
+          id="frog"
+          scale="0.5 0.5 0.5"
+          position="-2.9055 -0.11589 0.05301"
+        ></a-gltf-model>
+
+        <a-entity>
+          <a-box
+            id="nftImage1"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage1Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage1Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="1"
+            buy-nft="elementId:nftImage1Buy;imageId:1;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage1Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage1Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage1Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-entity position="-5.72 0 0">
+          <a-box
+            id="nftImage2"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage2Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage2Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="2"
+            buy-nft="elementId:nftImage2Buy;imageId:2;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage2Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage2Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage2Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-entity position="5.72 0 0">
+          <a-box
+            id="nftImage3"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage3Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage3Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="3"
+            buy-nft="elementId:nftImage3Buy;imageId:3;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage3Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage3Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage3Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-entity position="5.72 0 0" rotation="0 180 0">
+          <a-box
+            id="nftImage4"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage4Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage4Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="4"
+            buy-nft="elementId:nftImage4Buy;imageId:4;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage4Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage4Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage4Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-entity position="-5.72 0 0" rotation="0 180 0">
+          <a-box
+            id="nftImage5"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage5Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage5Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="5"
+            buy-nft="elementId:nftImage5Buy;imageId:5;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage5Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage5Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage5Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-entity position="0 0 0" rotation="0 180 0">
+          <a-box
+            id="nftImage6"
+            class="clickable"
+            text="width: 4; value: This text will be 4 units wide."
+            scale="0.145 0.065 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 1.5987 2.95423"
+            rotation="0 180 -0.38"
+            src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+            nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+          ></a-box>
+
+          <a-box
+            id="nftImage6Name"
+            text="value: This text will be 4 units wide."
+            scale="0.05 0.01 0.1"
+            depth="0.05"
+            width="15.4"
+            height="20.2"
+            position="0.00486 2.4787 2.95423"
+            rotation="0 180 -0.38"
+            color="#000000"
+          ></a-box>
+
+          <a-gltf-model
+            src="./assets/industrial_button/scene.gltf"
+            id="nftImage6Buy"
+            position="-0.25 0.74 2.64"
+            raycaster="objects: .collidable"
+            cursor="rayOrigin: mouse"
+            intersection-spawn="event: click; mixin: voxel"
+            imageId="6"
+            buy-nft="elementId:nftImage6Buy;imageId:6;"
+            class="clickable"
+          ></a-gltf-model>
+          <a-gltf-model
+            src="./assets/tag/scene.gltf"
+            id="nftImage6Tag"
+            scale="0.25 0.25 0.25"
+            rotation="0 90 0"
+            position="0.26 0.478 2.56"
+            imageId="6"
+          ></a-gltf-model>
+
+          <a-text
+            id="nftImage6Text"
+            value="Mona Lisa"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.21486 2.489 2.85423"
+            rotation="0 180 -0.38"
+          ></a-text>
+
+          <a-text
+            id="nftImage6Price"
+            scale="1.5 1.5 1.5"
+            value="Not Sale"
+            depth="0.05"
+            width="2"
+            height="10.2"
+            position="0.37486 0.769 2.45423"
+            rotation="0 180.03 -0.38"
+          ></a-text>
+        </a-entity>
+
+        <a-gltf-model
+          class="navmesh"
+          position="-7.95 0.833 -49.77"
+          scale="0.02 0.02 0.02"
+          src="assets/art_gallery_2floor_mesh.glb"
+          visible="false"
+        ></a-gltf-model>
+        <a-entity id="mouseCursor" cursor="rayOrigin: mouse"></a-entity>
+
+        <a-box
+          id="metamask_btn"
+          class="clickable"
+          metamask-link=""
+          scale="0.05 0.1 1"
+          depth="0.05"
+          width="4.4"
+          height="3.2"
+          position="-15.57 6.84 -10"
+          rotation="62 -90 0"
+          src="assets/MetaMask_Fox.svg"
+        ></a-box>
+        <!-- <a-box id="nft-link" class="clickable" scale="0.05 0.1 1" depth="0.05" width="15.4" height="20.2" position="2 1 0" rotation="0 0 0" src="https://i.seadn.io/gcs/files/2cf5f8e41bf0fe223e95184e98feff2d.png?auto=format&dpr=1&w=1000" nft-link='link:https://opensea.io/assets/ethereum/0xe987e9b07ca431fe0c7e8f431fa4f94ab9ca2423/1497'></a-box>
+      <a-box id="nft-link" class="clickable" scale="0.05 0.1 1" depth="0.05" width="15.4" height="20.2" position="3 1 0" rotation="0 0 0" src="https://i.seadn.io/gae/-0YEWuGk89n6TLwtDwfuR9B2Vi0HuHMhzzaCHFL1ic6vELnuZQI723go3uFRhTYdhoaKAKHYg5SLJoCEGB4cJzj0OsfQZTUqxVcAzsQ?auto=format&dpr=1&w=1000" nft-link='link:https://opensea.io/assets/ethereum/0xe987e9b07ca431fe0c7e8f431fa4f94ab9ca2423/1497'></a-box>
+   -->
+        <a-box
+          id="nftImage1"
+          class="clickable"
+          text="width: 4; value: This text will be 4 units wide."
+          scale="0.09 0.12 1"
+          depth="0.05"
+          width="15.4"
+          height="20.2"
+          position="2.435 4.039 -6.8"
+          rotation="8.4 0 0"
+          src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+          nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+        ></a-box>
+        <a-box
+          id="nftImage2"
+          class="clickable"
+          scale="-0.38 0.59 1"
+          depth="0.05"
+          width="15.4"
+          height="20.2"
+          position="7.721 6.18 -7.178"
+          rotation="0 90 0"
+          src="http://192.168.51.1:8080/api/v1/nft/1/3301/imageUrl"
+          nft-link="link:http://192.168.51.1:8080/api/v1/nft/1/3301/openseaurl"
+        ></a-box>
+
+        <a-text
+          position="2.435 5.5 -6.8"
+          rotation="0 180 0"
+          value="Id: 3"
+          font="dejavu"
+          color="blue"
+          align="center"
+        ></a-text>
+        <a-text
+          position="7.721 13.29 -7.178"
+          rotation="0 -90 0"
+          value="Id: 4"
+          color="#f91a1a"
+          align="center"
+        ></a-text>
+        <a-text
+          position="0 5.429 -5.597"
+          value="Room 1"
+          color="#646473"
+          align="center"
+        ></a-text>
+        <a-text
+          position="-1.38 5.68 -13.78"
+          rotation="20 0 0"
+          font="dejavu"
+          value="Path to Room 2"
+          color="#847943"
+          align="center"
+        ></a-text>
+        <a-box
+          id="owner_btn"
+          class="clickable"
+          scale="0.05 0.1 1"
+          depth="0.05"
+          width="4.4"
+          height="3.2"
+          position="-15.2 6.741 -9.274"
+          rotation="-66 138.6 0"
+          src="assets/admin.jpg"
+          link="href: owner.html"
+        ></a-box>
+
+        <!-- <a-box  class="clickable" scale="2.1 1 1" depth="0.05" width="4.4" height="3.2" position="-18.2 7.263 -10.39"  rotation="0 90 0"  src="assets/map_overview_pic.png" link="href: owner.html"></a-box>
+      <a-box  class="clickable" scale="0.5 0.5 1" depth="0.05" width="4.4" height="3.2" position="-18.2 9.73 -12.4"  rotation="20 64 0"  src="assets/2floor_pic.png" link="href: room2.html"></a-box>
+      <a-box  class="clickable" scale="0.5 0.5 1" depth="0.05" width="4.4" height="3.2" position="-19.2 9.611 -9.95"   rotation="20 90 0"src="assets/animatedgallery_pic.png" link="href: owner.html"></a-box>
+      <a-box  class="clickable" scale="0.5 0.5 1" depth="0.05" width="4.4" height="3.2" position="-18.2 9.75 -7.792"  rotation="-20 -45 0"src="assets/spiral_pic.png" link="href: room1.html"></a-box>
+ -->
+        <a-box
+          class="clickable"
+          scale="1.7 1.5 1"
+          depth="0.05"
+          width="4.4"
+          height="3.2"
+          position="-16.7 8.662 -10.1"
+          rotation="0 90 0"
+          src="assets/map_overview_pic.png"
+        ></a-box>
+      </a-entity>
+    </a-scene>
+    <script>
+      // Define a function that takes an image element id and an image id as parameters
+      async function loadImage(imageElementId, roomid, imageId) {
+        // Get the image element by id
+        const nftListURL = `${ip}/nft/metadata`;
+        let response = await fetch(nftListURL);
+
+        const nftList = await response.json();
+
+        console.log(nftList);
+
+        const imageHash = nftList[imageId];
+
+        console.log(imageHash);
+
+        const imageElement = document.getElementById(imageElementId);
+        console.log(imageElement);
+        // Construct the URL that returns the image URL as a string using the image id
+        const ipfsData = `https://ipfs.io/ipfs/${imageHash.ipfsHash}`;
+        console.log(ipfsData);
+
+        const imageMetadataResponse = await fetch(ipfsData);
+        const imageMetadata = await imageMetadataResponse.json();
+
+        const nameElement = document.getElementById(`${imageElementId}Text`);
+
+        nameElement.setAttribute("value", imageMetadata.name);
+
+        console.log(nameElement);
+
+        console.log("imageMetadata:", imageMetadata);
+
+        const buttonElement = document.getElementById(`${imageElementId}Buy`);
+        buttonElement.addEventListener("click", function () {
+          buyNFT(imageElementId, imageId);
+        });
+        buttonElement.setAttribute(
+          "buy-nft",
+          `elementId:${imageElementId};imageId:${imageId};`,
+        );
+
+        let marketResponse = await fetch(`${ip}/market/items`);
+        let listedItemList = await marketResponse.json();
+
+        console.log("listed item list:", listedItemList);
+
+        for (let i = 0; i < listedItemList.length; i++) {
+          if (listedItemList[i].id == imageId) {
+            const priceElement = document.getElementById(
+              `${imageElementId}Price`,
+            );
+            priceElement.setAttribute(
+              "value",
+              parseFloat(listedItemList[i].price / 1000000000).toFixed(2),
+            );
+          }
+        }
+
+        const imageUrl = imageMetadata.imageUrl;
+        //const openSeaUrl = `http://192.168.51.1:8080/api/v1/nft/${roomid}/${imageId}/openSeaUrl`;
+        // Fetch the URL and set the src attribute of the image element
+
+        imageElement.setAttribute("src", imageUrl);
+
+        // fetch(imageUrl)
+        //   .then((response) => response)
+        //   .then((imageUrl) => {
+        //     openSeaUrl = openSeaUrl.replace(/"/g, "");
+        //     imageElement.setAttribute("nft-link", "link:" + openSeaUrl);
+        //   })
+        //   .catch((error) => console.error(error));
+
+        // fetch(openSeaUrl)
+        //   .then((response) => response.text())
+        //   .then((openSeaUrl) => {
+        //     openSeaUrl = openSeaUrl.replace(/"/g, "");
+        //     imageElement.setAttribute("nft-link", "link:" + openSeaUrl);
+        //   })
+        //   .catch((error) => console.error(error));
+        console.log(imageElement);
+      }
+
+      // Call the function for each image element and image id
+      loadImage("nftImage1", 1, 0);
+      loadImage("nftImage2", 1, 2);
+      loadImage("nftImage3", 1, 5);
+      loadImage("nftImage4", 1, 6);
+      loadImage("nftImage5", 1, 7);
+      loadImage("nftImage6", 1, 8);
+    </script>
+
+    <div id="dom-overlay">
+      <h1>Hello World</h1>
+      <div class="overlay-footer">
+        <section
+          style="
+            display: inline-block;
+            background: lavenderblush;
+            color: #333333;
+            border-radius: 1em;
+            padding: 1em;
+            margin: 0;
+            accent-color: hotpink;
+          "
+          id="my-interface"
+        >
+          <h2>Settings</h2>
+          <fieldset style="border: none">
+            <legend>Thumbstick Behaviour</legend>
+            <input
+              onclick="toggleThumbstick(this)"
+              type="radio"
+              id="thumbstick-teleport"
+              name="thumbstick"
+              value="teleport"
+              checked
+            /><label for="thumbstick-teleport"> Teleport</label>
+            <input
+              onclick="toggleThumbstick(this)"
+              type="radio"
+              id="thumbstick-move"
+              name="thumbstick"
+              value="move"
+            /><label for="thumbstick-move"> Move</label>
+          </fieldset>
+          <button onclick="AFRAME.scenes[0].exitVR()" style="display: block">
+            Exit Immersive
+          </button>
+        </section>
+
+        <section
+          style="
+            display: inline-block;
+            background: lavenderblush;
+            color: #333333;
+            border-radius: 1em;
+            padding: 1em;
+            margin: 0;
+            accent-color: hotpink;
+          "
+          id="my-transaction"
+        >
+          <h2>Transaction</h2>
+          <div class="loader" style="display: none" id="spinner"></div>
+          <h4 style="display: none" id="transactionhash">placeholdertext</h4>
+          <button
+            onclick="window.open('placeholdertext','_blank')"
+            style="display: block"
+            id="hyperlink"
+          >
+            Enter Link
+          </button>
+          <button
+            onclick="confirm()"
+            style="display: block"
+            id="confirm-button"
+          >
+            Confirm
+          </button>
+        </section>
+
+        <!-- HTML form logic -->
+        <script>
+          function confirm() {
+            const loadingElement = document.getElementById(`spinner`);
+
+            loadingElement.setAttribute("style", "display: none");
+
+            const transactionhash = document.getElementById(`transactionhash`);
+
+            transactionhash.setAttribute("style", "display: none");
+            const myTransactionElement =
+              document.getElementById(`my-transaction`);
+
+            myTransactionElement.setAttribute(
+              "style",
+              "display: none;background: lavenderblush;color: #333333;border-radius: 1em;padding: 1em;margin: 0;accent-color: hotpink;",
+            );
+          }
+          let movementType = "teleport";
+          function toggleThumbstick(detail) {
+            const rayPointers = ['[data-right="ray"]', '[data-left="ray"]'].map(
+              (s) => document.querySelector(s),
+            );
+            const type = detail.value;
+            movementType = type;
+            if (type === "move") {
+              // Hack fix for when the camera rig is rotated.
+              //cameraRig.object3D.rotation.y = 0;
+              cameraRig.setAttribute("movement-controls", "enabled", true);
+              for (const p of rayPointers) p.removeAttribute("mixin");
+            }
+            if (type === "teleport") {
+              cameraRig.setAttribute("movement-controls", "enabled", false);
+              for (const p of rayPointers) p.setAttribute("mixin", "blink");
+            }
+          }
+          // If the user is teleporting disable movement-controls in XR
+          const sceneEl = document.querySelector("a-scene");
+          sceneEl.addEventListener("enter-vr", function () {
+            if (movementType === "teleport") {
+              cameraRig.setAttribute("movement-controls", "enabled", false);
+            }
+          });
+          sceneEl.addEventListener("exit-vr", function () {
+            cameraRig.setAttribute("movement-controls", "enabled", true);
+          });
+        </script>
+        <div id="dom-overlay-message">Enter AR or VR to start.</div>
+      </div>
+    </div>
+
+    <div
+      class="glitchButton"
+      style="position: absolute; top: 1em; right: 1em"
+    ></div>
+    <script src="https://button.glitch.me/button.js"></script>
+  </body>
+</html>

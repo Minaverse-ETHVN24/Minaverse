@@ -1,0 +1,56 @@
+body {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.overlay-footer {
+  position: absolute;
+  inset: auto 0 0 0;
+}
+
+.a-dom-overlay button {
+  padding: 1em;
+  appearance: none;
+  background: #00000055;
+  border: 3px solid white;
+  border-radius: 1em;
+  margin: 1em 1em 0 0;
+  color: white;
+}
+
+#my-interface {
+  user-select: none;
+}
+
+#my-interface h2 {
+  margin: 0;
+}
+
+#my-interface fieldset {
+  padding: 0;
+  margin-bottom: 0.5em;
+}
+
+#dom-overlay-message {
+  padding: 1em;
+  background: #33333355;
+  border-top: 5px solid #ffffff55;
+  color: white;
+}
+
+.loader {
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
